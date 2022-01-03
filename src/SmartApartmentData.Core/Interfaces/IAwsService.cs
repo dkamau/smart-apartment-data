@@ -8,6 +8,6 @@ namespace SmartApartmentData.Core.Interfaces
         Task<HttpResponseMessage> UploadAsync(string documentName, string data, int? id = null);
         Task<HttpResponseMessage> DeleteAsync(string documentName, int id);
         Task<HttpResponseMessage> DeleteAllAsync(string documentName);
-        Task<HttpResponseMessage> SearchAsync(string documentName, string searchTerm);
+        Task<HttpResponseMessage> SearchAsync(string searchTerm, string searchMarkets = "", int limit = 25);
     }
 }

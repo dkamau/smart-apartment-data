@@ -17,8 +17,4 @@
     <ProjectReference Include="..\SmartApartmentData.SharedKernel\SmartApartmentData.SharedKernel.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Entities\" />
-  </ItemGroup>
-
 </Project>

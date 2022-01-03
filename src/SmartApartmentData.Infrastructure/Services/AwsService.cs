@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using SmartApartmentData.Core.Interfaces;
 using SmartApartmentData.Infrastructure.Configs;
+using SmartApartmentData.Infrastructure.Models;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -78,11 +81,44 @@ namespace SmartApartmentData.Infrastructure.Services
             return result;
         }
 
-        public async Task<HttpResponseMessage> SearchAsync(string documentName, string searchTerm)
+        /// <summary>
+        /// Searches multiple documents on open search
+        /// </summary>
+        /// <param name="searchTerm"></param>
+        /// <param name="searchMarkets"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        public async Task<HttpResponseMessage> SearchAsync(string searchTerm, string searchMarkets = "", int limit = 25)
         {
-            string uri = $"{domain}/{documentName}/_search?q={searchTerm.Trim()}&pretty=true";
+            if (string.IsNullOrEmpty(searchTerm))
+                return null;
 
-            var result = await _httpClient.GetAsync(uri);
+            string uri = $"{domain}/_search?q={searchTerm.Trim()}&pretty=true";
+
+            Search search = new Search()
+            {
+                Size = limit,
+                Query = new Query()
+                {
+                    MultiMatch = new MultiMatch()
+                    {
+                        Query = searchTerm,
+                        Fields = new List<string>()
+                        {
+                            "name^4",
+                            "formerName",
+                            "streetAddress",
+                            "city",
+                            "market^2",
+                            "state",
+                        }
+                    }
+                }
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(search), Encoding.UTF8, "application/json");
+
+            var result = await _httpClient.PostAsync(uri, content);
 
             return result;
         }

@@ -1,0 +1,133 @@
+﻿@page "/"
+
+@using SmartApartmentData.App.Data
+@inject SearchService SearchService
+
+<h1>Smart Apartments</h1>
+
+<p>Find a property or a management service.</p>
+
+<div class="row">
+    <div class="col-sm-12 col-md-4">
+        <div class="form-group">
+            <label>Search</label>
+            <input type="text" class="form-control" @bind="searchParams.SearchTerm" @bind:event="oninput" @onkeyup="Search" placeholder="What are you looking for?">
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-4">
+        <label>Markets (Seperate with commas)</label>
+        <input type="text" class="form-control" @bind="searchParams.SearchMarket" @bind:event="oninput" @onchange="Search"  placeholder="e.g; New York City, Los Angeles" />
+    </div>
+    <div class="col-sm-12 col-md-4">
+        <label>Result Limit</label>
+        <select class="form-control" @bind="searchParams.Limit" @bind:event="oninput" @onchange="Search">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+</div>
+
+@if (searchResult == null)
+{
+    if (string.IsNullOrEmpty(searchParams.SearchTerm))
+    {
+        <p><em>Please type something in the Search box to find properties and management services.</em></p>
+    }
+
+    if (!string.IsNullOrEmpty(searchParams.SearchTerm))
+    {
+        <p><em>@searchParams.Status</em></p>
+    }
+
+}
+else
+{
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Properties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var hit in searchResult.Hits.Hits.ToList())
+                    {
+                        if (hit.Source.Property != null)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-auto">
+                                            <img src="/assets/imgs/apartment.png" style="height:40px; width:auto;" />
+                                        </div>
+                                        <div class="col">
+                                            <span>
+                                                <b>@hit.Source.Property.Name </b>
+                                                @if (!string.IsNullOrEmpty(hit.Source.Property.FormerName))
+                                                {
+                                                    <span> (<i>formerly</i> @hit.Source.Property.FormerName)</span>
+                                                }
+                                            </span>
+                                            <br />
+                                            <small>@hit.Source.Property.City (@hit.Source.Property.Market)</small>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                        if (hit.Source.Mgmt != null)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-auto">
+                                            <img src="/assets/imgs/contact.png" style="height:40px; width:auto;" />
+                                        </div>
+                                        <div class="col">
+                                            <span>
+                                                <b>@hit.Source.Mgmt.Name </b>
+                                            </span>
+                                            <br />
+                                            <small>@hit.Source.Mgmt.State (@hit.Source.Mgmt.Market)</small>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+}
+
+@code {
+    private SearchResult searchResult;
+
+    SearchParams searchParams = new SearchParams();
+
+    public async Task Search()
+    {
+        searchParams.Status = "Searching...";
+        searchResult = await SearchService.Find(searchParams.SearchTerm, searchParams.SearchMarket, searchParams.Limit);
+        if(searchResult == null)
+        {
+            searchParams.Status = $"Unfortunately we did not find any results for: {searchParams.SearchTerm}";
+        }
+    }
+
+    public class SearchParams
+    {
+        public string SearchTerm { get; set; }
+        public string SearchMarket { get; set; }
+        public int Limit { get; set; } = 25;
+        public string Status { get; set; }
+    }
+}

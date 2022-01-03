@@ -23,7 +23,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SmartApartmentData.Web\SmartApartmentData.Web.csproj" />
+    <ProjectReference Include="..\..\src\SmartApartmentData.Web\SmartApartmentData.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>

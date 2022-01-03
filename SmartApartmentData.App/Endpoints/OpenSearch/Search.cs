@@ -20,13 +20,10 @@ namespace SmartApartmentData.Web.Endpoints.OpenSearch
         public string searchTerm { get; set; }
 
         [FromRoute]
-        public string? searchMarkets { get; set; }
-
-        [FromRoute]
-        public int? limit { get; set; } = 25;
+        public string documentName { get; set; }
 
 
-        [HttpGet("/Search/{searchTerm}/{searchMarkets}/{limit}")]
+        [HttpGet("/Search/{documentName}/{searchTerm}")]
         [SwaggerOperation(
             Summary = "Search's an OpenSearch document",
             Description = "Search's an OpenSearch document",
@@ -35,10 +32,7 @@ namespace SmartApartmentData.Web.Endpoints.OpenSearch
         ]
         public override async Task<ActionResult<bool>> HandleAsync(CancellationToken cancellationToken)
         {
-            if (limit == null)
-                limit = 25;
-
-            var response = await _awsService.SearchAsync(searchTerm, searchMarkets, (int)limit);
+            var response = await _awsService.SearchAsync(searchTerm);
 
             string responseBody = await response.Content.ReadAsStringAsync();
 
