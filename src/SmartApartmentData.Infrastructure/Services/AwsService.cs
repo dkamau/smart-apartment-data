@@ -42,6 +42,12 @@ namespace SmartApartmentData.Infrastructure.Services
         /// <returns></returns>
         public async Task<HttpResponseMessage> UploadAsync(string documentName, string data, int? id = null)
         {
+            if (string.IsNullOrEmpty(documentName))
+                throw new NullReferenceException("DocumentName");
+
+            if (string.IsNullOrEmpty(documentName))
+                throw new NullReferenceException("Data");
+
             string uri = $"{domain}/{documentName}/_doc";
             if (id != null)
                 uri = $"{domain}/{documentName}/_doc/{id}";
@@ -111,7 +117,7 @@ namespace SmartApartmentData.Infrastructure.Services
                             "city",
                             "market^2",
                             "state",
-                        }
+                        },                        
                     }
                 }
             };

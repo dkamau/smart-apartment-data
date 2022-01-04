@@ -6,7 +6,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SmartApartmentData.Core.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -63,9 +65,17 @@ namespace SmartApartmentData.Web.Endpoints.OpenSearch
             int uploadCount = 0;
             var tasks = data.Select(async item =>
             {
-                var response = await _awsService.UploadAsync(Path.GetFileNameWithoutExtension(jsonFile.FileName).ToLower().Trim(), JsonConvert.SerializeObject(item));
-                if (response.IsSuccessStatusCode)
-                    uploadCount++;
+                try
+                {
+                    var response = await _awsService.UploadAsync(Path.GetFileNameWithoutExtension(jsonFile.FileName).ToLower().Trim(), JsonConvert.SerializeObject(item));
+                    if (response.IsSuccessStatusCode)
+                        uploadCount++;
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
             });
             await Task.WhenAll(tasks);
 
